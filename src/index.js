@@ -1,3 +1,4 @@
+import checkVersion from 'botpress-version-manager'
 import DB from './db'
 import _ from 'lodash'
 import path from 'path'
@@ -62,6 +63,9 @@ module.exports = {
   },
 
   init: async (bp, configurator) => {
+    
+    checkVersion(bp, __dirname)
+
     config = await configurator.loadAll()
 
     bp.middlewares.register({
