@@ -146,7 +146,7 @@ export default class HitlModule extends React.Component {
       <div className={style.mainContainer}>
         <Grid>
           <Row>
-            <Col sm={3} className={style.column} lgOffset={1}>
+            <Col sm={6} md={4} lg={3} className={style.column}>
               <Sidebar 
                 sessions={this.state.sessions} 
                 setSession={::this.setSession} 
@@ -154,7 +154,7 @@ export default class HitlModule extends React.Component {
                 filter={this.state.onlyPaused}
                 toggleOnlyPaused={::this.toggleOnlyPaused} />
             </Col>
-            <Col sm={9} className={style.column} lg={7}>
+            <Col sm={6} md={8} lg={9} className={style.column}>
               <Row>
                 <Col sm={12}>
                   <Conversation bp={this.props.bp} data={this.state.currentSession}/>

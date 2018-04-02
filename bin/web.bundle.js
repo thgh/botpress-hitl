@@ -265,7 +265,7 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	            null,
 	            _react2.default.createElement(
 	              _reactBootstrap.Col,
-	              { sm: 3, className: _style2.default.column, lgOffset: 1 },
+	              { sm: 6, md: 4, lg: 3, className: _style2.default.column },
 	              _react2.default.createElement(_sidebar2.default, {
 	                sessions: this.state.sessions,
 	                setSession: this.setSession.bind(this),
@@ -275,7 +275,7 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	            ),
 	            _react2.default.createElement(
 	              _reactBootstrap.Col,
-	              { sm: 9, className: _style2.default.column, lg: 7 },
+	              { sm: 6, md: 8, lg: 9, className: _style2.default.column },
 	              _react2.default.createElement(
 	                _reactBootstrap.Row,
 	                null,
@@ -53580,7 +53580,7 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	
 	
 	// module
-	exports.push([module.id, ".botpress-hitl__style__mainContainer___1afSJ .container {\n  margin: 0;\n  padding: 0;\n  width: 100%; }\n\n.botpress-hitl__style__column___PAS_X {\n  padding: 0;\n  min-width: 320px; }\n", ""]);
+	exports.push([module.id, ".botpress-hitl__style__mainContainer___1afSJ .container {\n  margin: 0;\n  padding: 0;\n  width: 100%; }\n\n.botpress-hitl__style__column___PAS_X {\n  padding: 0; }\n", ""]);
 	
 	// exports
 	exports.locals = {
