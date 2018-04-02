@@ -13,6 +13,10 @@ let config = null
 const incomingMiddleware = (event, next) => {
   if (!db) { return next() }
 
+  if (event.type === 'echo' && !event.alreadyProcessed) {
+    console.log('hitl.echo not processed', event)
+  }
+
   if (_.includes(['delivery', 'read'], event.type)) {
     return next()
   }
@@ -26,7 +30,25 @@ const incomingMiddleware = (event, next) => {
     return db.appendMessageToSession(event, session.id, 'in')
     .then(message => {
       event.bp.events.emit('hitl.message', message)
-      if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
+
+      const intentName = _.get(event, 'nlp.metadata.intentName')
+      const isPaused = !!session.paused || config.paused
+      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text)
+      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text)
+
+      if (event.chatbotDisable) {
+        console.log('chatbotDisable => pause', event.type)
+        event.bp.hitl.pause(event.platform, event.user.id)
+        return next()
+      }
+
+      if (event.chatbotEnable) {
+        console.log('chatbotEnable => unpause')
+        event.bp.hitl.unpause(event.platform, event.user.id)
+        return next()
+      }
+
+      if (isPaused && _.includes(['text', 'message'], event.type)) {
         event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
         // the session or bot is paused, swallow the message
         return
@@ -69,7 +91,7 @@ module.exports = {
     bp.middlewares.register({
       name: 'hitl.captureInMessages',
       type: 'incoming',
-      order: 2,
+      order: 11,
       handler: incomingMiddleware,
       module: 'botpress-hitl',
       description: 'Captures incoming messages and if the session if paused, swallow the event.'
