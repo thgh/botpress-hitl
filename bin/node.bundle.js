@@ -92,6 +92,7 @@ module.exports =
 	    // TODO: append out message
 	    return;
 	  }
+	  return next();
 	};
 	
 	var incomingMiddleware = function incomingMiddleware(event, next) {

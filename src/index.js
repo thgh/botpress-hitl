@@ -18,6 +18,7 @@ const operatorMiddleware = (event, next) => {
     // TODO: append out message
     return
   }
+  return next()
 }
 
 const incomingMiddleware = (event, next) => {
