@@ -65,6 +65,7 @@ function createUserSession(event) {
 }
 
 function getUserSession(event) {
+  console.log('hitl.db.getUserSession', event.type, event.user, event.raw, event.platform)
   const userId = (event.user && event.user.id) || event.raw.to
   return knex('hitl_sessions')
   .where({ platform: event.platform, userId: userId })

@@ -10,10 +10,20 @@ import fs from 'fs'
 let db = null
 let config = null
 
+const operatorMiddleware = (event, next) => {
+  if (String(event.text).startsWith('[operator]')) {
+    console.log('Operator is talking => pause', event.platform, event.user)
+    event.bp.hitl.pause(event.platform, event.user.id)
+
+    // TODO: append out message
+    return
+  }
+}
+
 const incomingMiddleware = (event, next) => {
   if (!db) { return next() }
 
-  console.log('hitl.incoming.event.type', event.type)
+  console.log('hitl.incoming.event.type', event.type, event.user)
 
   if (_.includes(['delivery', 'read'], event.type)) {
     return next()
@@ -28,12 +38,6 @@ const incomingMiddleware = (event, next) => {
     return db.appendMessageToSession(event, session.id, 'in')
     .then(message => {
       event.bp.events.emit('hitl.message', message)
-
-      if (String(event.text).startsWith('[operator]')) {
-        console.log('Operator is talking: chatbotDisable => pause', event.type)
-        event.bp.hitl.pause(event.platform, event.user.id)
-        return
-      }
 
       const intentName = _.get(event, 'nlp.metadata.intentName')
       const isPaused = !!session.paused || config.paused
@@ -93,6 +97,14 @@ module.exports = {
   init: async (bp, configurator) => {
     
     checkVersion(bp, __dirname)
+
+    bp.middlewares.register({
+      name: 'hitl.swallowOperatorMessages',
+      type: 'incoming',
+      order: -11,
+      handler: operatorMiddleware,
+      module: 'botpress-hitl'
+    })
 
     bp.middlewares.register({
       name: 'hitl.captureInMessages',
