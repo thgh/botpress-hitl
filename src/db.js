@@ -65,11 +65,11 @@ function createUserSession(event) {
 }
 
 function getUserSession(event) {
-  if (!event.user) {
-    console.log('hitl.db.getUserSession no user', event)
+  const userId = (event.user && event.user.id) || event.raw.to
+  if (!userId) {
+    console.log('hitl.db.getUserSession no user', event.user, event.platform, event.raw, event.text, event.type)
     throw new Error('hitl.db.getUserSession no user')
   }
-  const userId = (event.user && event.user.id) || event.raw.to
   return knex('hitl_sessions')
   .where({ platform: event.platform, userId: userId })
   .select('*')

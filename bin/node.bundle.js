@@ -370,11 +370,11 @@ module.exports =
 	}
 	
 	function getUserSession(event) {
-	  if (!event.user) {
-	    console.log('hitl.db.getUserSession no user', event);
+	  var userId = event.user && event.user.id || event.raw.to;
+	  if (!userId) {
+	    console.log('hitl.db.getUserSession no user', event.user, event.platform, event.raw, event.text, event.type);
 	    throw new Error('hitl.db.getUserSession no user');
 	  }
-	  var userId = event.user && event.user.id || event.raw.to;
 	  return knex('hitl_sessions').where({ platform: event.platform, userId: userId }).select('*').limit(1).then(function (users) {
 	    if (!users || users.length === 0) {
 	      return createUserSession(event);
