@@ -1,6 +1,6 @@
 {
   "name": "botpress-hitl",
-  "version": "1.0.9",
+  "version": "1.1.5",
   "description": "Official HITL (Human In The Loop) module for Botpress",
   "main": "bin/node.bundle.js",
   "botpress": {
@@ -21,6 +21,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "yarn compile",
     "watch": "node webpack.js --watch",
     "compile": "node webpack.js --compile"
   },

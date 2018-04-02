@@ -13,6 +13,8 @@ let config = null
 const incomingMiddleware = (event, next) => {
   if (!db) { return next() }
 
+  console.log('hitl.incoming.event.type', event.type)
+
   if (_.includes(['delivery', 'read'], event.type)) {
     return next()
   }
@@ -26,7 +28,33 @@ const incomingMiddleware = (event, next) => {
     return db.appendMessageToSession(event, session.id, 'in')
     .then(message => {
       event.bp.events.emit('hitl.message', message)
-      if ((!!session.paused || config.paused) && _.includes(['text', 'message'], event.type)) {
+
+      if (String(event.text).startsWith('[operator]')) {
+        console.log('Operator is talking: chatbotDisable => pause', event.type)
+        event.bp.hitl.pause(event.platform, event.user.id)
+        return
+      }
+
+      const intentName = _.get(event, 'nlp.metadata.intentName')
+      const isPaused = !!session.paused || config.paused
+      const chatbotDisable = intentName === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text)
+      const chatbotEnable = intentName === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text)
+
+      if (!isPaused && chatbotDisable) {
+        console.log('chatbotDisable => pause', event.type)
+        event.bp.hitl.pause(event.platform, event.user.id)
+        next()
+        return
+      }
+
+      if (isPaused && chatbotEnable) {
+        console.log('chatbotEnable => unpause')
+        event.bp.hitl.unpause(event.platform, event.user.id)
+        next()
+        return
+      }
+
+      if (isPaused && _.includes(['text', 'message'], event.type)) {
         event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
         // the session or bot is paused, swallow the message
         return
@@ -69,7 +97,7 @@ module.exports = {
     bp.middlewares.register({
       name: 'hitl.captureInMessages',
       type: 'incoming',
-      order: 2,
+      order: 11,
       handler: incomingMiddleware,
       module: 'botpress-hitl',
       description: 'Captures incoming messages and if the session if paused, swallow the event.'
