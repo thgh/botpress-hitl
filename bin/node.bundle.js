@@ -84,14 +84,24 @@ module.exports =
 	var db = null;
 	var config = null;
 	
+	var operatorMiddleware = function operatorMiddleware(event, next) {
+	  if (String(event.text).startsWith('[operator]')) {
+	    console.log('Operator is talking => pause', event.platform, event.user);
+	    event.bp.hitl.pause(event.platform, event.user.id);
+	
+	    // TODO: append out message
+	    return;
+	  }
+	};
+	
 	var incomingMiddleware = function incomingMiddleware(event, next) {
 	  if (!db) {
 	    return next();
 	  }
 	
-	  console.log('hitl.incoming.event.type', event.type);
+	  console.log('hitl.incoming.event.type', event.type, event.user);
 	
-	  if (_lodash2.default.includes(['delivery', 'read'])) {
+	  if (_lodash2.default.includes(['delivery', 'read'], event.type)) {
 	    return next();
 	  }
 	
@@ -102,12 +112,6 @@ module.exports =
 	
 	    return db.appendMessageToSession(event, session.id, 'in').then(function (message) {
 	      event.bp.events.emit('hitl.message', message);
-	
-	      if (String(event.text).startsWith('[operator]')) {
-	        console.log('Operator is talking: chatbotDisable => pause', event.type);
-	        event.bp.hitl.pause(event.platform, event.user.id);
-	        return;
-	      }
 	
 	      var intentName = _lodash2.default.get(event, 'nlp.metadata.intentName');
 	      var isPaused = !!session.paused || config.paused;
@@ -174,6 +178,14 @@ module.exports =
 	              (0, _botpressVersionManager2.default)(bp, __dirname);
 	
 	              bp.middlewares.register({
+	                name: 'hitl.swallowOperatorMessages',
+	                type: 'incoming',
+	                order: -11,
+	                handler: operatorMiddleware,
+	                module: 'botpress-hitl'
+	              });
+	
+	              bp.middlewares.register({
 	                name: 'hitl.captureInMessages',
 	                type: 'incoming',
 	                order: 11,
@@ -191,10 +203,10 @@ module.exports =
 	                description: 'Captures outgoing messages to show inside HITL.'
 	              });
 	
-	              _context.next = 5;
+	              _context.next = 6;
 	              return configurator.loadAll();
 	
-	            case 5:
+	            case 6:
 	              config = _context.sent;
 	
 	
@@ -204,7 +216,7 @@ module.exports =
 	                return db.initialize();
 	              });
 	
-	            case 7:
+	            case 8:
 	            case 'end':
 	              return _context.stop();
 	          }
@@ -376,6 +388,7 @@ module.exports =
 	}
 	
 	function getUserSession(event) {
+	  console.log('hitl.db.getUserSession', event.type, event.user, event.raw, event.platform);
 	  var userId = event.user && event.user.id || event.raw.to;
 	  return knex('hitl_sessions').where({ platform: event.platform, userId: userId }).select('*').limit(1).then(function (users) {
 	    if (!users || users.length === 0) {
