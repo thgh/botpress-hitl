@@ -13,8 +13,9 @@ let config = null
 const incomingMiddleware = (event, next) => {
   if (!db) { return next() }
 
-  if (event.type === 'echo' && !event.alreadyProcessed) {
-    console.log('hitl.echo not processed', event)
+  if (event.type === 'human') {
+    event.bp.hitl.pause(event.platform, event.user.id)
+    return console.log('human operator => pause')
   }
 
   if (_.includes(['delivery', 'read', 'echo'], event.type)) {

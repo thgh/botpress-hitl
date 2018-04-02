@@ -89,8 +89,9 @@ module.exports =
 	    return next();
 	  }
 	
-	  if (event.type === 'echo' && !event.alreadyProcessed) {
-	    console.log('hitl.echo not processed', event);
+	  if (event.type === 'human') {
+	    event.bp.hitl.pause(event.platform, event.user.id);
+	    return console.log('human operator => pause');
 	  }
 	
 	  if (_lodash2.default.includes(['delivery', 'read', 'echo'], event.type)) {
