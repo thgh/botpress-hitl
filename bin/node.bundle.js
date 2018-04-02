@@ -84,25 +84,16 @@ module.exports =
 	var db = null;
 	var config = null;
 	
-	var operatorMiddleware = function operatorMiddleware(event, next) {
-	  if (String(event.text).startsWith('[operator]')) {
-	    console.log('Operator is talking => pause', event.platform, event.user);
-	    event.bp.hitl.pause(event.platform, event.user.id);
-	
-	    // TODO: append out message
-	    return;
-	  }
-	  return next();
-	};
-	
 	var incomingMiddleware = function incomingMiddleware(event, next) {
 	  if (!db) {
 	    return next();
 	  }
 	
-	  console.log('hitl.incoming.event.type', event.type, event.user);
+	  if (event.type === 'echo' && !event.alreadyProcessed) {
+	    console.log('hitl.echo not processed', event);
+	  }
 	
-	  if (_lodash2.default.includes(['delivery', 'read'], event.type)) {
+	  if (_lodash2.default.includes(['delivery', 'read', 'echo'], event.type)) {
 	    return next();
 	  }
 	
@@ -116,21 +107,19 @@ module.exports =
 	
 	      var intentName = _lodash2.default.get(event, 'nlp.metadata.intentName');
 	      var isPaused = !!session.paused || config.paused;
-	      var chatbotDisable = intentName === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text);
-	      var chatbotEnable = intentName === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text);
+	      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text);
+	      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text);
 	
-	      if (!isPaused && chatbotDisable) {
+	      if (event.chatbotDisable) {
 	        console.log('chatbotDisable => pause', event.type);
 	        event.bp.hitl.pause(event.platform, event.user.id);
-	        next();
-	        return;
+	        return next();
 	      }
 	
-	      if (isPaused && chatbotEnable) {
+	      if (event.chatbotEnable) {
 	        console.log('chatbotEnable => unpause');
 	        event.bp.hitl.unpause(event.platform, event.user.id);
-	        next();
-	        return;
+	        return next();
 	      }
 	
 	      if (isPaused && _lodash2.default.includes(['text', 'message'], event.type)) {
@@ -179,14 +168,6 @@ module.exports =
 	              (0, _botpressVersionManager2.default)(bp, __dirname);
 	
 	              bp.middlewares.register({
-	                name: 'hitl.swallowOperatorMessages',
-	                type: 'incoming',
-	                order: -11,
-	                handler: operatorMiddleware,
-	                module: 'botpress-hitl'
-	              });
-	
-	              bp.middlewares.register({
 	                name: 'hitl.captureInMessages',
 	                type: 'incoming',
 	                order: 11,
@@ -204,10 +185,10 @@ module.exports =
 	                description: 'Captures outgoing messages to show inside HITL.'
 	              });
 	
-	              _context.next = 6;
+	              _context.next = 5;
 	              return configurator.loadAll();
 	
-	            case 6:
+	            case 5:
 	              config = _context.sent;
 	
 	
@@ -217,7 +198,7 @@ module.exports =
 	                return db.initialize();
 	              });
 	
-	            case 8:
+	            case 7:
 	            case 'end':
 	              return _context.stop();
 	          }
@@ -389,7 +370,10 @@ module.exports =
 	}
 	
 	function getUserSession(event) {
-	  console.log('hitl.db.getUserSession', event.type, event.user, event.raw, event.platform);
+	  if (!event.user) {
+	    console.log('hitl.db.getUserSession no user', event);
+	    throw new Error('hitl.db.getUserSession no user');
+	  }
 	  var userId = event.user && event.user.id || event.raw.to;
 	  return knex('hitl_sessions').where({ platform: event.platform, userId: userId }).select('*').limit(1).then(function (users) {
 	    if (!users || users.length === 0) {

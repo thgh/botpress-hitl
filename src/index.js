@@ -17,7 +17,7 @@ const incomingMiddleware = (event, next) => {
     console.log('hitl.echo not processed', event)
   }
 
-  if (_.includes(['delivery', 'read'], event.type)) {
+  if (_.includes(['delivery', 'read', 'echo'], event.type)) {
     return next()
   }
 
