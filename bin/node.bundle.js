@@ -90,6 +90,10 @@ module.exports =
 	  }
 	
 	  if (event.type === 'human') {
+	    if (event.text.toLowerCase().includes('goodbye')) {
+	      event.bp.hitl.unpause(event.platform, event.user.id);
+	      return console.log('human operator "goodbye" => unpause');
+	    }
 	    event.bp.hitl.pause(event.platform, event.user.id);
 	    return console.log('human operator => pause');
 	  }
