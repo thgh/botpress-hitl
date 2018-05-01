@@ -108,15 +108,15 @@ module.exports =
 	    }
 	
 	    return db.appendMessageToSession(event, session.id, 'in').then(function (message) {
-	      console.log('hitl.message', message, event);
 	      event.bp.events.emit('hitl.message', message);
 	
-	      var intentName = (_lodash2.default.get(event, 'nlp.metadata.intentName') || '').toLowerCase();
-	      var postback = (_lodash2.default.get(event, 'postback.payload') || '').toLowerCase();
+	      var intents = ['nlp.metadata.intentName', 'raw_message.postback.payload', 'raw.postback.payload', 'text'].map(function (s) {
+	        return (_lodash2.default.get(event, s) || '').toLowerCase();
+	      });
 	      var isPaused = !!session.paused || config.paused;
-	      console.log('hitl.nowwhat', intentName, postback, isPaused);
-	      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || postback === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text);
-	      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || postback === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text);
+	      console.log('hitl.nowwhat', intents, isPaused);
+	      event.chatbotDisable = !isPaused && intents.includes('bothrs:chatbot.disable') || /HITL_START/.test(event.text);
+	      event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text);
 	
 	      if (event.chatbotDisable) {
 	        console.log('chatbotDisable => pause', event.type);
