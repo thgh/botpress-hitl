@@ -108,11 +108,13 @@ module.exports =
 	    }
 	
 	    return db.appendMessageToSession(event, session.id, 'in').then(function (message) {
+	      console.log('hitl.message', message, event);
 	      event.bp.events.emit('hitl.message', message);
 	
-	      var intentName = _lodash2.default.get(event, 'nlp.metadata.intentName');
-	      var postback = _lodash2.default.get(event, 'postback.payload');
+	      var intentName = (_lodash2.default.get(event, 'nlp.metadata.intentName') || '').toLowerCase();
+	      var postback = (_lodash2.default.get(event, 'postback.payload') || '').toLowerCase();
 	      var isPaused = !!session.paused || config.paused;
+	      console.log('hitl.nowwhat', intentName, postback, isPaused);
 	      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || postback === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text);
 	      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || postback === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text);
 	
