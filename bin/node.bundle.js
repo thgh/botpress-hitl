@@ -111,9 +111,10 @@ module.exports =
 	      event.bp.events.emit('hitl.message', message);
 	
 	      var intentName = _lodash2.default.get(event, 'nlp.metadata.intentName');
+	      var postback = _lodash2.default.get(event, 'postback.payload');
 	      var isPaused = !!session.paused || config.paused;
-	      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text);
-	      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text);
+	      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || postback === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text);
+	      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || postback === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text);
 	
 	      if (event.chatbotDisable) {
 	        console.log('chatbotDisable => pause', event.type);

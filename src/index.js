@@ -37,9 +37,10 @@ const incomingMiddleware = (event, next) => {
       event.bp.events.emit('hitl.message', message)
 
       const intentName = _.get(event, 'nlp.metadata.intentName')
+      const postback = _.get(event, 'postback.payload')
       const isPaused = !!session.paused || config.paused
-      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text)
-      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text)
+      event.chatbotDisable = !isPaused && intentName === 'bothrs:chatbot.disable' || postback === 'bothrs:chatbot.disable' || /HITL_START/.test(event.text)
+      event.chatbotEnable = isPaused && intentName === 'bothrs:chatbot.enable' || postback === 'bothrs:chatbot.enable' || /HITL_STOP/.test(event.text)
 
       if (event.chatbotDisable) {
         console.log('chatbotDisable => pause', event.type)
