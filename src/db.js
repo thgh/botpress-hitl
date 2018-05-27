@@ -26,7 +26,7 @@ function initialize() {
       table.increments('id').primary()
       table.integer('session_id').references('hitl_sessions.id').onDelete('CASCADE')
       table.string('type')
-      table.string('text')
+      table.string('text', 640)
       table.jsonb('raw_message')
       table.enu('direction', ['in', 'out'])
       table.timestamp('ts')
