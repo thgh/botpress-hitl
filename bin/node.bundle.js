@@ -213,6 +213,10 @@ module.exports =
 	    return next();
 	  }
 	
+	  if (event.type === 'bp_dialog_timeout') {
+	    return next();
+	  }
+	
 	  return db.getUserSession(event).then(function (session) {
 	
 	    if (session.is_new_session) {

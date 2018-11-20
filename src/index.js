@@ -22,7 +22,7 @@ const incomingMiddleware = async (event, next) => {
     return console.log('human operator => pause')
   }
 
-  if (_.includes(['delivery', 'read', 'echo'], event.type)) {
+  if (_.includes(['delivery', 'read', 'echo', 'bp_dialog_timeout'], event.type)) {
     return next()
   }
 
@@ -75,6 +75,10 @@ const incomingMiddleware = async (event, next) => {
 
 const outgoingMiddleware = (event, next) => {
   if (!db) { return next() }
+
+  if (event.type === 'bp_dialog_timeout') {
+    return next()
+  }
 
   return db.getUserSession(event)
   .then(session => {
