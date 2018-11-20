@@ -10,7 +10,7 @@ import fs from 'fs'
 let db = null
 let config = null
 
-const incomingMiddleware = (event, next) => {
+const incomingMiddleware = async (event, next) => {
   if (!db) { return next() }
 
   if (event.type === 'human') {
@@ -26,48 +26,51 @@ const incomingMiddleware = (event, next) => {
     return next()
   }
 
-  return db.getUserSession(event)
-  .then(session => {
-    if (session.is_new_session) {
-      event.bp.events.emit('hitl.session', session)
-    }
+  const session = await db.getUserSession(event)
 
-    return db.appendMessageToSession(event, session.id, 'in')
-    .then(message => {
-      event.bp.events.emit('hitl.message', message)
+  if (!session) {
+    return next()
+  }
 
-      const intents = [
-        'nlp.metadata.intentName',
-        'raw_message.postback.payload',
-        'raw.postback.payload',
-        'text'
-      ].map(s => (_.get(event, s) || '').toLowerCase())
-      const isPaused = !!session.paused || config.paused
-      console.log('hitl.nowwhat', intents, isPaused)
-      event.chatbotDisable = !isPaused && intents.includes('bothrs:chatbot.disable') || /HITL_START/.test(event.text)
-      event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text)
+  if (session.is_new_session) {
+    event.bp.events.emit('hitl.session', session)
+  }
 
-      if (event.chatbotDisable) {
-        console.log('chatbotDisable => pause', event.type)
-        event.bp.hitl.pause(event.platform, event.user.id)
-        return next()
-      }
+  const message = await db.appendMessageToSession(event, session.id, 'in')
+  event.bp.events.emit('hitl.message', message)
 
-      if (event.chatbotEnable) {
-        console.log('chatbotEnable => unpause')
-        event.bp.hitl.unpause(event.platform, event.user.id)
-        return next()
-      }
+  // Custom logic start
+  const intents = [
+    'nlp.metadata.intentName',
+    'raw_message.postback.payload',
+    'raw.postback.payload',
+    'text'
+  ].map(s => (_.get(event, s) || '').toLowerCase())
+  const isPaused = !!session.paused || config.paused
+  console.log('hitl.nowwhat', intents, isPaused)
+  event.chatbotDisable = !isPaused && intents.includes('bothrs:chatbot.disable') || /HITL_START/.test(event.text)
+  event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text)
 
-      if (isPaused && _.includes(['text', 'message'], event.type)) {
-        event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
-        // the session or bot is paused, swallow the message
-        return
-      } else {
-        next()
-      }
-    })
-  })
+  if (event.chatbotDisable) {
+    console.log('chatbotDisable => pause', event.type)
+    event.bp.hitl.pause(event.platform, event.user.id)
+    return next()
+  }
+
+  if (event.chatbotEnable) {
+    console.log('chatbotEnable => unpause')
+    event.bp.hitl.unpause(event.platform, event.user.id)
+    return next()
+  }
+  // Custom logic end
+
+  if (isPaused && _.includes(['text', 'message', 'quick_reply'], event.type)) {
+    event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text)
+    // the session or bot is paused, swallow the message
+    return
+  }
+
+  next()
 }
 
 const outgoingMiddleware = (event, next) => {

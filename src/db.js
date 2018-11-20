@@ -64,23 +64,26 @@ function createUserSession(event) {
   .then(db_session => Object.assign({}, session, db_session))
 }
 
-function getUserSession(event) {
+async function getUserSession(event) {
   const userId = (event.user && event.user.id) || event.raw.to
+
   if (!userId) {
-    console.log('hitl.db.getUserSession no user', event.user, event.platform, event.raw, event.text, event.type)
-    throw new Error('hitl.db.getUserSession no user')
+    return null
   }
+
   return knex('hitl_sessions')
-  .where({ platform: event.platform, userId: userId })
-  .select('*')
-  .limit(1)
-  .then(users => {
-    if (!users || users.length === 0) {
-      return createUserSession(event)
-    } else {
-      return users[0]
-    }
-  })
+    .where({ platform: event.platform, userId: userId })
+    .select('*')
+    .limit(1)
+    .then(users => {
+      if (!users || users.length === 0) {
+        return createUserSession(event)
+      } else {
+        users[0].raw = typeof users[0].raw === 'string' ? JSON.parse(users[0].raw) : null
+
+        return users[0]
+      }
+    })
 }
 
 function getSession(sessionId) {

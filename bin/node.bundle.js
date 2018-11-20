@@ -84,62 +84,129 @@ module.exports =
 	var db = null;
 	var config = null;
 	
-	var incomingMiddleware = function incomingMiddleware(event, next) {
-	  if (!db) {
-	    return next();
-	  }
+	var incomingMiddleware = function () {
+	  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(event, next) {
+	    var session, message, intents, isPaused;
+	    return regeneratorRuntime.wrap(function _callee$(_context) {
+	      while (1) {
+	        switch (_context.prev = _context.next) {
+	          case 0:
+	            if (db) {
+	              _context.next = 2;
+	              break;
+	            }
 	
-	  if (event.type === 'human') {
-	    if (event.text.toLowerCase().includes('goodbye')) {
-	      event.bp.hitl.unpause(event.platform, event.user.id);
-	      return console.log('human operator "goodbye" => unpause');
-	    }
-	    event.bp.hitl.pause(event.platform, event.user.id);
-	    return console.log('human operator => pause');
-	  }
+	            return _context.abrupt('return', next());
 	
-	  if (_lodash2.default.includes(['delivery', 'read', 'echo'], event.type)) {
-	    return next();
-	  }
+	          case 2:
+	            if (!(event.type === 'human')) {
+	              _context.next = 8;
+	              break;
+	            }
 	
-	  return db.getUserSession(event).then(function (session) {
-	    if (session.is_new_session) {
-	      event.bp.events.emit('hitl.session', session);
-	    }
+	            if (!event.text.toLowerCase().includes('goodbye')) {
+	              _context.next = 6;
+	              break;
+	            }
 	
-	    return db.appendMessageToSession(event, session.id, 'in').then(function (message) {
-	      event.bp.events.emit('hitl.message', message);
+	            event.bp.hitl.unpause(event.platform, event.user.id);
+	            return _context.abrupt('return', console.log('human operator "goodbye" => unpause'));
 	
-	      var intents = ['nlp.metadata.intentName', 'raw_message.postback.payload', 'raw.postback.payload', 'text'].map(function (s) {
-	        return (_lodash2.default.get(event, s) || '').toLowerCase();
-	      });
-	      var isPaused = !!session.paused || config.paused;
-	      console.log('hitl.nowwhat', intents, isPaused);
-	      event.chatbotDisable = !isPaused && intents.includes('bothrs:chatbot.disable') || /HITL_START/.test(event.text);
-	      event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text);
+	          case 6:
+	            event.bp.hitl.pause(event.platform, event.user.id);
+	            return _context.abrupt('return', console.log('human operator => pause'));
 	
-	      if (event.chatbotDisable) {
-	        console.log('chatbotDisable => pause', event.type);
-	        event.bp.hitl.pause(event.platform, event.user.id);
-	        return next();
+	          case 8:
+	            if (!_lodash2.default.includes(['delivery', 'read', 'echo'], event.type)) {
+	              _context.next = 10;
+	              break;
+	            }
+	
+	            return _context.abrupt('return', next());
+	
+	          case 10:
+	            _context.next = 12;
+	            return db.getUserSession(event);
+	
+	          case 12:
+	            session = _context.sent;
+	
+	            if (session) {
+	              _context.next = 15;
+	              break;
+	            }
+	
+	            return _context.abrupt('return', next());
+	
+	          case 15:
+	
+	            if (session.is_new_session) {
+	              event.bp.events.emit('hitl.session', session);
+	            }
+	
+	            _context.next = 18;
+	            return db.appendMessageToSession(event, session.id, 'in');
+	
+	          case 18:
+	            message = _context.sent;
+	
+	            event.bp.events.emit('hitl.message', message);
+	
+	            // Custom logic start
+	            intents = ['nlp.metadata.intentName', 'raw_message.postback.payload', 'raw.postback.payload', 'text'].map(function (s) {
+	              return (_lodash2.default.get(event, s) || '').toLowerCase();
+	            });
+	            isPaused = !!session.paused || config.paused;
+	
+	            console.log('hitl.nowwhat', intents, isPaused);
+	            event.chatbotDisable = !isPaused && intents.includes('bothrs:chatbot.disable') || /HITL_START/.test(event.text);
+	            event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text);
+	
+	            if (!event.chatbotDisable) {
+	              _context.next = 29;
+	              break;
+	            }
+	
+	            console.log('chatbotDisable => pause', event.type);
+	            event.bp.hitl.pause(event.platform, event.user.id);
+	            return _context.abrupt('return', next());
+	
+	          case 29:
+	            if (!event.chatbotEnable) {
+	              _context.next = 33;
+	              break;
+	            }
+	
+	            console.log('chatbotEnable => unpause');
+	            event.bp.hitl.unpause(event.platform, event.user.id);
+	            return _context.abrupt('return', next());
+	
+	          case 33:
+	            if (!(isPaused && _lodash2.default.includes(['text', 'message', 'quick_reply'], event.type))) {
+	              _context.next = 36;
+	              break;
+	            }
+	
+	            event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text);
+	            // the session or bot is paused, swallow the message
+	            return _context.abrupt('return');
+	
+	          case 36:
+	
+	            next();
+	
+	          case 37:
+	          case 'end':
+	            return _context.stop();
+	        }
 	      }
+	    }, _callee, undefined);
+	  }));
 	
-	      if (event.chatbotEnable) {
-	        console.log('chatbotEnable => unpause');
-	        event.bp.hitl.unpause(event.platform, event.user.id);
-	        return next();
-	      }
-	
-	      if (isPaused && _lodash2.default.includes(['text', 'message'], event.type)) {
-	        event.bp.logger.debug('[hitl] Session paused, message swallowed:', event.text);
-	        // the session or bot is paused, swallow the message
-	        return;
-	      } else {
-	        next();
-	      }
-	    });
-	  });
-	};
+	  return function incomingMiddleware(_x, _x2) {
+	    return _ref.apply(this, arguments);
+	  };
+	}();
 	
 	var outgoingMiddleware = function outgoingMiddleware(event, next) {
 	  if (!db) {
@@ -167,10 +234,10 @@ module.exports =
 	  },
 	
 	  init: function () {
-	    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(bp, configurator) {
-	      return regeneratorRuntime.wrap(function _callee$(_context) {
+	    var _ref2 = _asyncToGenerator(regeneratorRuntime.mark(function _callee2(bp, configurator) {
+	      return regeneratorRuntime.wrap(function _callee2$(_context2) {
 	        while (1) {
-	          switch (_context.prev = _context.next) {
+	          switch (_context2.prev = _context2.next) {
 	            case 0:
 	
 	              (0, _botpressVersionManager2.default)(bp, __dirname);
@@ -193,11 +260,11 @@ module.exports =
 	                description: 'Captures outgoing messages to show inside HITL.'
 	              });
 	
-	              _context.next = 5;
+	              _context2.next = 5;
 	              return configurator.loadAll();
 	
 	            case 5:
-	              config = _context.sent;
+	              config = _context2.sent;
 	
 	
 	              bp.db.get().then(function (knex) {
@@ -208,14 +275,14 @@ module.exports =
 	
 	            case 7:
 	            case 'end':
-	              return _context.stop();
+	              return _context2.stop();
 	          }
 	        }
-	      }, _callee, undefined);
+	      }, _callee2, undefined);
 	    }));
 	
-	    return function init(_x, _x2) {
-	      return _ref.apply(this, arguments);
+	    return function init(_x3, _x4) {
+	      return _ref2.apply(this, arguments);
 	    };
 	  }(),
 	
@@ -301,6 +368,46 @@ module.exports =
 
 	'use strict';
 	
+	var getUserSession = function () {
+	  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(event) {
+	    var userId;
+	    return regeneratorRuntime.wrap(function _callee$(_context) {
+	      while (1) {
+	        switch (_context.prev = _context.next) {
+	          case 0:
+	            userId = event.user && event.user.id || event.raw.to;
+	
+	            if (userId) {
+	              _context.next = 3;
+	              break;
+	            }
+	
+	            return _context.abrupt('return', null);
+	
+	          case 3:
+	            return _context.abrupt('return', knex('hitl_sessions').where({ platform: event.platform, userId: userId }).select('*').limit(1).then(function (users) {
+	              if (!users || users.length === 0) {
+	                return createUserSession(event);
+	              } else {
+	                users[0].raw = typeof users[0].raw === 'string' ? JSON.parse(users[0].raw) : null;
+	
+	                return users[0];
+	              }
+	            }));
+	
+	          case 4:
+	          case 'end':
+	            return _context.stop();
+	        }
+	      }
+	    }, _callee, this);
+	  }));
+	
+	  return function getUserSession(_x) {
+	    return _ref.apply(this, arguments);
+	  };
+	}();
+	
 	var _bluebird = __webpack_require__(4);
 	
 	var _bluebird2 = _interopRequireDefault(_bluebird);
@@ -316,6 +423,8 @@ module.exports =
 	var _botpress = __webpack_require__(7);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new _bluebird2.default(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return _bluebird2.default.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 	
 	var knex = null;
 	
@@ -339,7 +448,7 @@ module.exports =
 	      table.increments('id').primary();
 	      table.integer('session_id').references('hitl_sessions.id').onDelete('CASCADE');
 	      table.string('type');
-	      table.string('text');
+	      table.string('text', 640);
 	      table.jsonb('raw_message');
 	      table.enu('direction', ['in', 'out']);
 	      table.timestamp('ts');
@@ -374,21 +483,6 @@ module.exports =
 	    return knex('hitl_sessions').where({ id: session.id }).then().get(0);
 	  }).then(function (db_session) {
 	    return Object.assign({}, session, db_session);
-	  });
-	}
-	
-	function getUserSession(event) {
-	  var userId = event.user && event.user.id || event.raw.to;
-	  if (!userId) {
-	    console.log('hitl.db.getUserSession no user', event.user, event.platform, event.raw, event.text, event.type);
-	    throw new Error('hitl.db.getUserSession no user');
-	  }
-	  return knex('hitl_sessions').where({ platform: event.platform, userId: userId }).select('*').limit(1).then(function (users) {
-	    if (!users || users.length === 0) {
-	      return createUserSession(event);
-	    } else {
-	      return users[0];
-	    }
 	  });
 	}
 	

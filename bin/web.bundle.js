@@ -36319,13 +36319,14 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	
 	
 	// module
-	exports.push([module.id, ".botpress-hitl__style__message___1XYQy {\n  margin: 10px;\n  max-width: 50%; }\n  .botpress-hitl__style__message___1XYQy p {\n    display: block;\n    padding: 12px 18px 12px 18px;\n    border-radius: 20px; }\n  .botpress-hitl__style__message___1XYQy img, .botpress-hitl__style__message___1XYQy video {\n    max-width: 100%;\n    border-radius: 10px; }\n  .botpress-hitl__style__message___1XYQy audio {\n    height: 50px;\n    padding: 10px;\n    border-radius: 10px;\n    background-color: #fafafa; }\n\n.botpress-hitl__style__fromUser___1infu {\n  float: left;\n  margin-left: 15px; }\n  .botpress-hitl__style__fromUser___1infu p {\n    background-color: #e6e6e6; }\n\n.botpress-hitl__style__fromBot___3K-_X {\n  float: right;\n  margin-right: 15px; }\n  .botpress-hitl__style__fromBot___3K-_X p {\n    background-color: #36bc98;\n    color: #fff; }\n", ""]);
+	exports.push([module.id, ".botpress-hitl__style__message___1XYQy {\n  margin: 10px;\n  max-width: 50%; }\n  .botpress-hitl__style__message___1XYQy p {\n    display: block;\n    padding: 12px 18px 12px 18px;\n    border-radius: 20px; }\n  .botpress-hitl__style__message___1XYQy img, .botpress-hitl__style__message___1XYQy video {\n    max-width: 100%;\n    border-radius: 10px; }\n  .botpress-hitl__style__message___1XYQy audio {\n    height: 50px;\n    padding: 10px;\n    border-radius: 10px;\n    background-color: #fafafa; }\n\n.botpress-hitl__style__fromUser___1infu {\n  float: left;\n  margin-left: 15px; }\n  .botpress-hitl__style__fromUser___1infu p {\n    background-color: #e6e6e6; }\n\n.botpress-hitl__style__fromBot___3K-_X {\n  float: right;\n  margin-right: 15px; }\n  .botpress-hitl__style__fromBot___3K-_X p {\n    background-color: #36bc98;\n    color: #fff; }\n\n.botpress-hitl__style__event___1abSm {\n  text-align: center;\n  max-width: 100%; }\n  .botpress-hitl__style__event___1abSm p {\n    color: #a3a3a3; }\n", ""]);
 	
 	// exports
 	exports.locals = {
 		"message": "botpress-hitl__style__message___1XYQy",
 		"fromUser": "botpress-hitl__style__fromUser___1infu",
-		"fromBot": "botpress-hitl__style__fromBot___3K-_X"
+		"fromBot": "botpress-hitl__style__fromBot___3K-_X",
+		"event": "botpress-hitl__style__event___1abSm"
 	};
 
 /***/ },
