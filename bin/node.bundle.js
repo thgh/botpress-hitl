@@ -117,7 +117,7 @@ module.exports =
 	            return _context.abrupt('return', console.log('human operator => pause'));
 	
 	          case 8:
-	            if (!_lodash2.default.includes(['delivery', 'read', 'echo'], event.type)) {
+	            if (!_lodash2.default.includes(['delivery', 'read', 'echo', 'bp_dialog_timeout'], event.type)) {
 	              _context.next = 10;
 	              break;
 	            }
@@ -391,7 +391,8 @@ module.exports =
 	          case 3:
 	            return _context.abrupt('return', knex('hitl_sessions').where({ platform: event.platform, userId: userId }).select('*').limit(1).then(function (users) {
 	              if (!users || users.length === 0) {
-	                return createUserSession(event);
+	                console.log(event.raw);
+	                return event.user ? createUserSession(event) : null;
 	              } else {
 	                users[0].raw = typeof users[0].raw === 'string' ? JSON.parse(users[0].raw) : null;
 	

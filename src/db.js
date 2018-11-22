@@ -77,7 +77,8 @@ async function getUserSession(event) {
     .limit(1)
     .then(users => {
       if (!users || users.length === 0) {
-        return createUserSession(event)
+        console.log(event.raw)
+        return event.user ? createUserSession(event) : null
       } else {
         users[0].raw = typeof users[0].raw === 'string' ? JSON.parse(users[0].raw) : null
 
