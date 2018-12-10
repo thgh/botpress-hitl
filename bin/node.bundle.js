@@ -35,7 +35,7 @@ module.exports =
 /******/ 	__webpack_require__.c = installedModules;
 /******/
 /******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/Users/thomas/projects/bp/botpress-hitl";
+/******/ 	__webpack_require__.p = "/Users/thomas/projects/puratos/botpress-hitl";
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(0);

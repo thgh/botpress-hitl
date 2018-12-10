@@ -22,14 +22,17 @@ export default class Message extends React.Component {
   }
 
   renderPostback() {
+    const postback = this.props.content.postback || this.props.content
+    console.log('postback', this.props.content)
     return <p>
-      {this.props.content.postback.title}<br />
-      <code style={{color: 'white', background: 'black'}}>{this.props.content.postback.payload}</code>
+      {postback.title}<br />
+      <code style={{color: 'white', background: 'black'}}>{postback.payload}</code>
     </p>
   }
 
   renderQuickReply() {
     const message = this.props.content.message || this.props.content
+    console.log('renderQuickReply', this.props.content)
     return <p>
       {message.text}<br />
       <code style={{color: 'white', background: 'black'}}>{message.quick_reply.payload}</code>
@@ -121,7 +124,7 @@ export default class Message extends React.Component {
     ]
 
     if (!_.includes(renderedTypes, this.props.content.type)) {
-      return <p>? other ? {JSON.stringify(this.props.content.type)}<br />{JSON.stringify(this.props.content.payload)}</p>
+      return <p>? other ? {JSON.stringify(this.props.content.type)}<br />{JSON.stringify(this.props.content.payload || this.props.content)}</p>
     }
     return (
       <Row>

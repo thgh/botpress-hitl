@@ -36184,15 +36184,17 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	  }, {
 	    key: 'renderPostback',
 	    value: function renderPostback() {
+	      var postback = this.props.content.postback || this.props.content;
+	      console.log('postback', this.props.content);
 	      return _react2.default.createElement(
 	        'p',
 	        null,
-	        this.props.content.postback.title,
+	        postback.title,
 	        _react2.default.createElement('br', null),
 	        _react2.default.createElement(
 	          'code',
 	          { style: { color: 'white', background: 'black' } },
-	          this.props.content.postback.payload
+	          postback.payload
 	        )
 	      );
 	    }
@@ -36200,6 +36202,7 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	    key: 'renderQuickReply',
 	    value: function renderQuickReply() {
 	      var message = this.props.content.message || this.props.content;
+	      console.log('renderQuickReply', this.props.content);
 	      return _react2.default.createElement(
 	        'p',
 	        null,
@@ -36306,7 +36309,7 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	          '? other ? ',
 	          JSON.stringify(this.props.content.type),
 	          _react2.default.createElement('br', null),
-	          JSON.stringify(this.props.content.payload)
+	          JSON.stringify(this.props.content.payload || this.props.content)
 	        );
 	      }
 	      return _react2.default.createElement(
