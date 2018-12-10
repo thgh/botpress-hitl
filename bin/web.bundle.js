@@ -36182,6 +36182,37 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	      );
 	    }
 	  }, {
+	    key: 'renderPostback',
+	    value: function renderPostback() {
+	      return _react2.default.createElement(
+	        'p',
+	        null,
+	        this.props.content.postback.title,
+	        _react2.default.createElement('br', null),
+	        _react2.default.createElement(
+	          'code',
+	          { style: { color: 'white', background: 'black' } },
+	          this.props.content.postback.payload
+	        )
+	      );
+	    }
+	  }, {
+	    key: 'renderQuickReply',
+	    value: function renderQuickReply() {
+	      var message = this.props.content.message || this.props.content;
+	      return _react2.default.createElement(
+	        'p',
+	        null,
+	        message.text,
+	        _react2.default.createElement('br', null),
+	        _react2.default.createElement(
+	          'code',
+	          { style: { color: 'white', background: 'black' } },
+	          message.quick_reply.payload
+	        )
+	      );
+	    }
+	  }, {
 	    key: 'renderImage',
 	    value: function renderImage() {
 	      return _react2.default.createElement('img', { src: this.props.content.text });
@@ -36207,6 +36238,10 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	
 	      if (type === "message" || type === "text") {
 	        return this.renderText();
+	      } else if (type === "postback") {
+	        return this.renderPostback();
+	      } else if (type === "quick_reply") {
+	        return this.renderQuickReply();
 	      } else if (type === "image") {
 	        return this.renderImage();
 	      } else if (type === "video") {
@@ -36262,10 +36297,17 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	  }, {
 	    key: 'render',
 	    value: function render() {
-	      var renderedTypes = ["text", "message", "image", "video", "audio"];
+	      var renderedTypes = ["text", "message", "postback", "quick_reply", "image", "video", "audio"];
 	
 	      if (!_lodash2.default.includes(renderedTypes, this.props.content.type)) {
-	        return null;
+	        return _react2.default.createElement(
+	          'p',
+	          null,
+	          '? other ? ',
+	          JSON.stringify(this.props.content.type),
+	          _react2.default.createElement('br', null),
+	          JSON.stringify(this.props.content.payload)
+	        );
 	      }
 	      return _react2.default.createElement(
 	        _reactBootstrap.Row,

@@ -24,7 +24,7 @@ export default class Message extends React.Component {
   renderPostback() {
     return <p>
       {this.props.content.postback.title}<br />
-      <code style={color: 'white', background: 'black'}>{this.props.content.postback.payload}</code>
+      <code style={{color: 'white', background: 'black'}}>{this.props.content.postback.payload}</code>
     </p>
   }
 
@@ -32,7 +32,7 @@ export default class Message extends React.Component {
     const message = this.props.content.message || this.props.content
     return <p>
       {message.text}<br />
-      <code style={color: 'white', background: 'black'}>{message.quick_reply.payload}</code>
+      <code style={{color: 'white', background: 'black'}}>{message.quick_reply.payload}</code>
     </p>
   }
 
