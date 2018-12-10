@@ -21,6 +21,21 @@ export default class Message extends React.Component {
     return <p>{this.props.content.text}</p>
   }
 
+  renderPostback() {
+    return <p>
+      {this.props.content.postback.title}<br />
+      <code style={color: 'white', background: 'black'}>{this.props.content.postback.payload}</code>
+    </p>
+  }
+
+  renderQuickReply() {
+    const message = this.props.content.message || this.props.content
+    return <p>
+      {message.text}<br />
+      <code style={color: 'white', background: 'black'}>{message.quick_reply.payload}</code>
+    </p>
+  }
+
   renderImage() {
     return <img src={this.props.content.text}/>
   }
@@ -40,6 +55,12 @@ export default class Message extends React.Component {
 
     if (type === "message" || type === "text") {
       return this.renderText()
+    }
+    else if (type === "postback") {
+      return this.renderPostback()
+    }
+    else if (type === "quick_reply") {
+      return this.renderQuickReply()
     }
     else if (type === "image") {
       return this.renderImage()
@@ -92,13 +113,15 @@ export default class Message extends React.Component {
     const renderedTypes = [
       "text",
       "message",
+      "postback",
+      "quick_reply",
       "image",
       "video",
       "audio"
     ]
 
     if (!_.includes(renderedTypes, this.props.content.type)) {
-      return null
+      return <p>? other ? {JSON.stringify(this.props.content.type)}<br />{JSON.stringify(this.props.content.payload)}</p>
     }
     return (
       <Row>
