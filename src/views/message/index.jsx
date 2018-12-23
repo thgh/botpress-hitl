@@ -22,21 +22,31 @@ export default class Message extends React.Component {
   }
 
   renderPostback() {
-    const postback = this.props.content.postback || this.props.content
-    console.log('postback', this.props.content)
-    return <p>
-      {postback.title}<br />
-      <code style={{color: 'white', background: 'black'}}>{postback.payload}</code>
-    </p>
+    const { platform, raw_message, text } = this.props.content
+    if (platform === 'facebook') {
+      const raw = fromRaw(raw_message)
+      return <div className={style.action}>
+        {raw.postback.title}
+        <code>{text}</code>
+      </div>
+    }
+    return <div className={style.action}>
+      {text}
+    </div>
   }
 
   renderQuickReply() {
-    const message = this.props.content.message || this.props.content
-    console.log('renderQuickReply', this.props.content)
-    return <p>
-      {message.text}<br />
-      <code style={{color: 'white', background: 'black'}}>{message.quick_reply.payload}</code>
-    </p>
+    const { platform, raw_message, text } = this.props.content
+    if (platform === 'facebook') {
+      const raw = fromRaw(raw_message)
+      return <div className={style.action}>
+        {raw.message.text}
+        <code>{text}</code>
+      </div>
+    }
+    return <div className={style.action}>
+      {text}
+    </div>
   }
 
   renderImage() {
@@ -122,9 +132,9 @@ export default class Message extends React.Component {
       "video",
       "audio"
     ]
-
+    console.log('renderMessage', this.props.content.type, this.props.content)
     if (!_.includes(renderedTypes, this.props.content.type)) {
-      return <p>? other ? {JSON.stringify(this.props.content.type)}<br />{JSON.stringify(this.props.content.payload || this.props.content)}</p>
+      return <p>{JSON.stringify(this.props.content.type)}</p> // <p>? other ? {JSON.stringify(this.props.content.type)}<br />{JSON.stringify(this.props.content.payload || this.props.content)}</p>
     }
     return (
       <Row>
@@ -134,4 +144,8 @@ export default class Message extends React.Component {
       </Row>
     )
   }
+}
+
+function fromRaw (str) {
+  return typeof str === 'string' ? JSON.parse(str) : str
 }

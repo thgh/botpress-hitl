@@ -36184,35 +36184,55 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	  }, {
 	    key: 'renderPostback',
 	    value: function renderPostback() {
-	      var postback = this.props.content.postback || this.props.content;
-	      console.log('postback', this.props.content);
+	      var _props$content = this.props.content,
+	          platform = _props$content.platform,
+	          raw_message = _props$content.raw_message,
+	          text = _props$content.text;
+	
+	      if (platform === 'facebook') {
+	        var raw = fromRaw(raw_message);
+	        return _react2.default.createElement(
+	          'div',
+	          { className: _style2.default.action },
+	          raw.postback.title,
+	          _react2.default.createElement(
+	            'code',
+	            null,
+	            text
+	          )
+	        );
+	      }
 	      return _react2.default.createElement(
-	        'p',
-	        null,
-	        postback.title,
-	        _react2.default.createElement('br', null),
-	        _react2.default.createElement(
-	          'code',
-	          { style: { color: 'white', background: 'black' } },
-	          postback.payload
-	        )
+	        'div',
+	        { className: _style2.default.action },
+	        text
 	      );
 	    }
 	  }, {
 	    key: 'renderQuickReply',
 	    value: function renderQuickReply() {
-	      var message = this.props.content.message || this.props.content;
-	      console.log('renderQuickReply', this.props.content);
+	      var _props$content2 = this.props.content,
+	          platform = _props$content2.platform,
+	          raw_message = _props$content2.raw_message,
+	          text = _props$content2.text;
+	
+	      if (platform === 'facebook') {
+	        var raw = fromRaw(raw_message);
+	        return _react2.default.createElement(
+	          'div',
+	          { className: _style2.default.action },
+	          raw.message.text,
+	          _react2.default.createElement(
+	            'code',
+	            null,
+	            text
+	          )
+	        );
+	      }
 	      return _react2.default.createElement(
-	        'p',
-	        null,
-	        message.text,
-	        _react2.default.createElement('br', null),
-	        _react2.default.createElement(
-	          'code',
-	          { style: { color: 'white', background: 'black' } },
-	          message.quick_reply.payload
-	        )
+	        'div',
+	        { className: _style2.default.action },
+	        text
 	      );
 	    }
 	  }, {
@@ -36301,16 +36321,13 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	    key: 'render',
 	    value: function render() {
 	      var renderedTypes = ["text", "message", "postback", "quick_reply", "image", "video", "audio"];
-	
+	      console.log('renderMessage', this.props.content.type, this.props.content);
 	      if (!_lodash2.default.includes(renderedTypes, this.props.content.type)) {
 	        return _react2.default.createElement(
 	          'p',
 	          null,
-	          '? other ? ',
-	          JSON.stringify(this.props.content.type),
-	          _react2.default.createElement('br', null),
-	          JSON.stringify(this.props.content.payload || this.props.content)
-	        );
+	          JSON.stringify(this.props.content.type)
+	        ); // <p>? other ? {JSON.stringify(this.props.content.type)}<br />{JSON.stringify(this.props.content.payload || this.props.content)}</p>
 	      }
 	      return _react2.default.createElement(
 	        _reactBootstrap.Row,
@@ -36328,6 +36345,11 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	}(_react2.default.Component);
 	
 	exports.default = Message;
+	
+	
+	function fromRaw(str) {
+	  return typeof str === 'string' ? JSON.parse(str) : str;
+	}
 
 /***/ },
 /* 401 */
@@ -36364,11 +36386,12 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	
 	
 	// module
-	exports.push([module.id, ".botpress-hitl__style__message___1XYQy {\n  margin: 10px;\n  max-width: 50%; }\n  .botpress-hitl__style__message___1XYQy p {\n    display: block;\n    padding: 12px 18px 12px 18px;\n    border-radius: 20px; }\n  .botpress-hitl__style__message___1XYQy img, .botpress-hitl__style__message___1XYQy video {\n    max-width: 100%;\n    border-radius: 10px; }\n  .botpress-hitl__style__message___1XYQy audio {\n    height: 50px;\n    padding: 10px;\n    border-radius: 10px;\n    background-color: #fafafa; }\n\n.botpress-hitl__style__fromUser___1infu {\n  float: left;\n  margin-left: 15px; }\n  .botpress-hitl__style__fromUser___1infu p {\n    background-color: #e6e6e6; }\n\n.botpress-hitl__style__fromBot___3K-_X {\n  float: right;\n  margin-right: 15px; }\n  .botpress-hitl__style__fromBot___3K-_X p {\n    background-color: #36bc98;\n    color: #fff; }\n\n.botpress-hitl__style__event___1abSm {\n  text-align: center;\n  max-width: 100%; }\n  .botpress-hitl__style__event___1abSm p {\n    color: #a3a3a3; }\n", ""]);
+	exports.push([module.id, ".botpress-hitl__style__message___1XYQy {\n  margin: 10px;\n  width: 40em;\n  max-width: 90%; }\n  .botpress-hitl__style__message___1XYQy p {\n    display: block;\n    padding: 12px 18px 12px 18px;\n    border-radius: 20px; }\n  .botpress-hitl__style__message___1XYQy img, .botpress-hitl__style__message___1XYQy video {\n    max-width: 100%;\n    border-radius: 10px; }\n  .botpress-hitl__style__message___1XYQy audio {\n    height: 50px;\n    padding: 10px;\n    border-radius: 10px;\n    background-color: #fafafa; }\n\n.botpress-hitl__style__action___2E5ij {\n  display: inline-block;\n  border: 1px solid #0084ff;\n  padding: 0 15px;\n  line-height: 29px;\n  background: #fff;\n  border-radius: 1.3em;\n  color: #0084ff; }\n  .botpress-hitl__style__action___2E5ij code {\n    color: #789;\n    background: none;\n    border-radius: 0;\n    margin-left: .5em;\n    padding: 0;\n    vertical-align: middle;\n    font-size: 8px; }\n\n.botpress-hitl__style__fromUser___1infu {\n  float: left;\n  margin-left: 15px; }\n  .botpress-hitl__style__fromUser___1infu p {\n    background-color: #e6e6e6; }\n\n.botpress-hitl__style__fromBot___3K-_X {\n  float: right;\n  margin-right: 15px; }\n  .botpress-hitl__style__fromBot___3K-_X p {\n    background-color: #36bc98;\n    color: #fff; }\n\n.botpress-hitl__style__event___1abSm {\n  text-align: center;\n  max-width: 100%; }\n  .botpress-hitl__style__event___1abSm p {\n    color: #a3a3a3; }\n", ""]);
 	
 	// exports
 	exports.locals = {
 		"message": "botpress-hitl__style__message___1XYQy",
+		"action": "botpress-hitl__style__action___2E5ij",
 		"fromUser": "botpress-hitl__style__fromUser___1infu",
 		"fromBot": "botpress-hitl__style__fromBot___3K-_X",
 		"event": "botpress-hitl__style__event___1abSm"
