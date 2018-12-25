@@ -100,54 +100,55 @@ module.exports =
 	
 	          case 2:
 	            if (!(event.type === 'human')) {
-	              _context.next = 8;
+	              _context.next = 9;
 	              break;
 	            }
 	
 	            if (!event.text.toLowerCase().includes('goodbye')) {
-	              _context.next = 6;
+	              _context.next = 7;
 	              break;
 	            }
 	
 	            event.bp.hitl.unpause(event.platform, event.user.id);
+	            event.bp.logger.debug('human operator "goodbye" => unpause');
 	            return _context.abrupt('return', console.log('human operator "goodbye" => unpause'));
 	
-	          case 6:
+	          case 7:
 	            event.bp.hitl.pause(event.platform, event.user.id);
 	            return _context.abrupt('return', console.log('human operator => pause'));
 	
-	          case 8:
+	          case 9:
 	            if (!_lodash2.default.includes(['delivery', 'read', 'echo', 'bp_dialog_timeout'], event.type)) {
-	              _context.next = 10;
+	              _context.next = 11;
 	              break;
 	            }
 	
 	            return _context.abrupt('return', next());
 	
-	          case 10:
-	            _context.next = 12;
+	          case 11:
+	            _context.next = 13;
 	            return db.getUserSession(event);
 	
-	          case 12:
+	          case 13:
 	            session = _context.sent;
 	
 	            if (session) {
-	              _context.next = 15;
+	              _context.next = 16;
 	              break;
 	            }
 	
 	            return _context.abrupt('return', next());
 	
-	          case 15:
+	          case 16:
 	
 	            if (session.is_new_session) {
 	              event.bp.events.emit('hitl.session', session);
 	            }
 	
-	            _context.next = 18;
+	            _context.next = 19;
 	            return db.appendMessageToSession(event, session.id, 'in');
 	
-	          case 18:
+	          case 19:
 	            message = _context.sent;
 	
 	            event.bp.events.emit('hitl.message', message);
@@ -163,7 +164,7 @@ module.exports =
 	            event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text);
 	
 	            if (!event.chatbotDisable) {
-	              _context.next = 29;
+	              _context.next = 30;
 	              break;
 	            }
 	
@@ -171,9 +172,9 @@ module.exports =
 	            event.bp.hitl.pause(event.platform, event.user.id);
 	            return _context.abrupt('return', next());
 	
-	          case 29:
+	          case 30:
 	            if (!event.chatbotEnable) {
-	              _context.next = 33;
+	              _context.next = 34;
 	              break;
 	            }
 	
@@ -181,9 +182,9 @@ module.exports =
 	            event.bp.hitl.unpause(event.platform, event.user.id);
 	            return _context.abrupt('return', next());
 	
-	          case 33:
+	          case 34:
 	            if (!(isPaused && _lodash2.default.includes(['text', 'message', 'quick_reply'], event.type))) {
-	              _context.next = 36;
+	              _context.next = 37;
 	              break;
 	            }
 	
@@ -191,11 +192,11 @@ module.exports =
 	            // the session or bot is paused, swallow the message
 	            return _context.abrupt('return');
 	
-	          case 36:
+	          case 37:
 	
 	            next();
 	
-	          case 37:
+	          case 38:
 	          case 'end':
 	            return _context.stop();
 	        }
@@ -291,16 +292,17 @@ module.exports =
 	  }(),
 	
 	  ready: function ready(bp) {
+	    var _this = this;
 	
 	    bp.hitl = {
-	      pause: function pause(platform, userId) {
-	        return db.setSessionPaused(true, platform, userId, 'code').then(function (sessionId) {
+	      pause: function pause(platform, userId, code) {
+	        return db.setSessionPaused(true, platform, userId, code || 'code').then(function (sessionId) {
 	          bp.events.emit('hitl.session', { id: sessionId });
 	          bp.events.emit('hitl.session.changed', { id: sessionId, paused: 1 });
 	        });
 	      },
-	      unpause: function unpause(platform, userId) {
-	        return db.setSessionPaused(false, platform, userId, 'code').then(function (sessionId) {
+	      unpause: function unpause(platform, userId, code) {
+	        return db.setSessionPaused(false, platform, userId, code || 'code').then(function (sessionId) {
 	          bp.events.emit('hitl.session', { id: sessionId });
 	          bp.events.emit('hitl.session.changed', { id: sessionId, paused: 0 });
 	        });
@@ -328,18 +330,38 @@ module.exports =
 	      var message = req.body.message;
 	
 	
-	      db.getSession(req.params.sessionId).then(function (session) {
-	        var event = {
-	          type: 'text',
-	          platform: session.platform,
-	          raw: { to: session.userId, message: message },
-	          text: message
+	      db.getSession(req.params.sessionId).then(function () {
+	        var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee3(session) {
+	          var event;
+	          return regeneratorRuntime.wrap(function _callee3$(_context3) {
+	            while (1) {
+	              switch (_context3.prev = _context3.next) {
+	                case 0:
+	                  event = {
+	                    type: 'text',
+	                    platform: session.platform,
+	                    raw: { to: session.userId, message: message },
+	                    text: message
+	                  };
+	                  _context3.next = 3;
+	                  return bp.middlewares.sendOutgoing(event);
+	
+	                case 3:
+	
+	                  res.sendStatus(200);
+	
+	                case 4:
+	                case 'end':
+	                  return _context3.stop();
+	              }
+	            }
+	          }, _callee3, _this);
+	        }));
+	
+	        return function (_x5) {
+	          return _ref3.apply(this, arguments);
 	        };
-	
-	        bp.middlewares.sendOutgoing(event);
-	
-	        res.sendStatus(200);
-	      });
+	      }());
 	    });
 	
 	    // TODO post /sessions/:id/typing
@@ -372,8 +394,12 @@ module.exports =
 
 	'use strict';
 	
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	
+	var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+	
 	var getUserSession = function () {
-	  var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(event) {
+	  var _ref3 = _asyncToGenerator(regeneratorRuntime.mark(function _callee(event) {
 	    var userId;
 	    return regeneratorRuntime.wrap(function _callee$(_context) {
 	      while (1) {
@@ -409,7 +435,7 @@ module.exports =
 	  }));
 	
 	  return function getUserSession(_x) {
-	    return _ref.apply(this, arguments);
+	    return _ref3.apply(this, arguments);
 	  };
 	}();
 	
@@ -480,14 +506,15 @@ module.exports =
 	    full_name: full_name,
 	    paused_trigger: null
 	  };
+	  event.bp.logger.debug('[hitl] createUserSession', session);
 	
-	  return knex('hitl_sessions').insert(session).then(function (results) {
-	    session.id = results[0];
-	    session.is_new_session = true;
-	  }).then(function () {
-	    return knex('hitl_sessions').where({ id: session.id }).then().get(0);
-	  }).then(function (db_session) {
-	    return Object.assign({}, session, db_session);
+	  return knex('hitl_sessions').insert(session).returning('id').then(function (_ref) {
+	    var _ref2 = _slicedToArray(_ref, 1),
+	        id = _ref2[0];
+	
+	    return knex('hitl_sessions').where({ id: id }).then().get(0);
+	  }).then(function (dbSession) {
+	    return _extends({ is_new_session: true }, dbSession);
 	  });
 	}
 	

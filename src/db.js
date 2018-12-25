@@ -53,15 +53,18 @@ function createUserSession(event) {
     full_name: full_name,
     paused_trigger: null
   }
-
+  event.bp.logger.debug('[hitl] createUserSession', session)
+  
   return knex('hitl_sessions')
-  .insert(session)
-  .then(results => { 
-    session.id = results[0]
-    session.is_new_session = true
-  })
-  .then(() => knex('hitl_sessions').where({ id: session.id }).then().get(0))
-  .then(db_session => Object.assign({}, session, db_session))
+    .insert(session)
+    .returning('id')
+    .then(([id]) =>
+      knex('hitl_sessions')
+        .where({ id })
+        .then()
+        .get(0)
+    )
+    .then(dbSession => ({ is_new_session: true, ...dbSession }))
 }
 
 async function getUserSession(event) {

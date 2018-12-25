@@ -16,6 +16,7 @@ const incomingMiddleware = async (event, next) => {
   if (event.type === 'human') {
     if (event.text.toLowerCase().includes('goodbye')) {
       event.bp.hitl.unpause(event.platform, event.user.id)
+      event.bp.logger.debug('human operator "goodbye" => unpause')
       return console.log('human operator "goodbye" => unpause')
     }
     event.bp.hitl.pause(event.platform, event.user.id)
@@ -134,15 +135,15 @@ module.exports = {
   ready: function(bp) {
 
     bp.hitl = {
-      pause: (platform, userId) => {
-        return db.setSessionPaused(true, platform, userId, 'code')
+      pause: (platform, userId, code) => {
+        return db.setSessionPaused(true, platform, userId, code || 'code')
         .then(sessionId => {
           bp.events.emit('hitl.session', { id: sessionId })
           bp.events.emit('hitl.session.changed', { id: sessionId, paused: 1 })
         })
       },
-      unpause: (platform, userId) => {
-        return db.setSessionPaused(false, platform, userId, 'code')
+      unpause: (platform, userId, code) => {
+        return db.setSessionPaused(false, platform, userId, code || 'code')
         .then(sessionId => {
           bp.events.emit('hitl.session', { id: sessionId })
           bp.events.emit('hitl.session.changed', { id: sessionId, paused: 0 })
@@ -169,7 +170,7 @@ module.exports = {
       const { message } = req.body
 
       db.getSession(req.params.sessionId)
-      .then(session => {
+      .then(async session => {
         const event = {
           type: 'text',
           platform: session.platform,
@@ -177,7 +178,7 @@ module.exports = {
           text: message
         }
 
-        bp.middlewares.sendOutgoing(event)
+        await bp.middlewares.sendOutgoing(event)
 
         res.sendStatus(200)
       })
