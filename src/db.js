@@ -53,7 +53,7 @@ function createUserSession(event) {
     full_name: full_name,
     paused_trigger: null
   }
-  event.bp.logger.debug('[hitl] createUserSession', session)
+  event.bp.logger.debug('[hitl] createUserSession')
   
   return knex('hitl_sessions')
     .insert(session)

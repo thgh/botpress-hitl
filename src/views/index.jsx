@@ -48,7 +48,8 @@ export default class HitlModule extends React.Component {
     this.fetchAllSessions()
     .then(() => {
       if (!this.state.currentSession) {
-        const firstSession = _.head(this.state.sessions.sessions)
+        const userId = window.location.hash.slice(1)
+        const firstSession = userId && this.state.sessions.sessions.find(s => s.userId === userId) || _.head(this.state.sessions.sessions)
         this.setSession(firstSession.id)
       }
     })
@@ -124,6 +125,9 @@ export default class HitlModule extends React.Component {
   setSession(sessionId) {
     const session = _.find(this.state.sessions.sessions, { id: sessionId })
     this.setState({ currentSession: session })
+    if (window.location.hash.slice(1) !== session.userId) {
+      window.history.replaceState({}, 'hitl', '#' + session.userId)
+    }
   }
 
   sendMessage(message) {

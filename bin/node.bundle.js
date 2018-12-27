@@ -506,7 +506,7 @@ module.exports =
 	    full_name: full_name,
 	    paused_trigger: null
 	  };
-	  event.bp.logger.debug('[hitl] createUserSession', session);
+	  event.bp.logger.debug('[hitl] createUserSession');
 	
 	  return knex('hitl_sessions').insert(session).returning('id').then(function (_ref) {
 	    var _ref2 = _slicedToArray(_ref, 1),

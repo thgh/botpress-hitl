@@ -144,7 +144,10 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	
 	      this.fetchAllSessions().then(function () {
 	        if (!_this2.state.currentSession) {
-	          var firstSession = _lodash2.default.head(_this2.state.sessions.sessions);
+	          var userId = window.location.hash.slice(1);
+	          var firstSession = userId && _this2.state.sessions.sessions.find(function (s) {
+	            return s.userId === userId;
+	          }) || _lodash2.default.head(_this2.state.sessions.sessions);
 	          _this2.setSession(firstSession.id);
 	        }
 	      });
@@ -229,6 +232,9 @@ botpress = typeof botpress === "object" ? botpress : {}; botpress["botpress-hitl
 	    value: function setSession(sessionId) {
 	      var session = _lodash2.default.find(this.state.sessions.sessions, { id: sessionId });
 	      this.setState({ currentSession: session });
+	      if (window.location.hash.slice(1) !== session.userId) {
+	        window.history.replaceState({}, 'hitl', '#' + session.userId);
+	      }
 	    }
 	  }, {
 	    key: 'sendMessage',
