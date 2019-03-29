@@ -14,6 +14,13 @@ const incomingMiddleware = async (event, next) => {
   if (!db) { return next() }
 
   if (event.type === 'human') {
+    if (event.text.toLowerCase().includes('survey')) {
+      console.log('human operator "survey" => unpause')
+      event.startSurvey = true
+      await event.bp.hitl.unpause(event.platform, event.user.id)
+      event.bp.logger.debug('human operator "survey" => unpause')
+      return next()
+    }
     if (event.text.toLowerCase().includes('goodbye')) {
       event.bp.hitl.unpause(event.platform, event.user.id)
       event.bp.logger.debug('human operator "goodbye" => unpause')

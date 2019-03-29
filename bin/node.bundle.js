@@ -100,12 +100,27 @@ module.exports =
 	
 	          case 2:
 	            if (!(event.type === 'human')) {
-	              _context.next = 9;
+	              _context.next = 16;
 	              break;
 	            }
 	
+	            if (!event.text.toLowerCase().includes('survey')) {
+	              _context.next = 10;
+	              break;
+	            }
+	
+	            console.log('human operator "survey" => unpause');
+	            event.startSurvey = true;
+	            _context.next = 8;
+	            return event.bp.hitl.unpause(event.platform, event.user.id);
+	
+	          case 8:
+	            event.bp.logger.debug('human operator "survey" => unpause');
+	            return _context.abrupt('return', next());
+	
+	          case 10:
 	            if (!event.text.toLowerCase().includes('goodbye')) {
-	              _context.next = 7;
+	              _context.next = 14;
 	              break;
 	            }
 	
@@ -113,42 +128,42 @@ module.exports =
 	            event.bp.logger.debug('human operator "goodbye" => unpause');
 	            return _context.abrupt('return', console.log('human operator "goodbye" => unpause'));
 	
-	          case 7:
+	          case 14:
 	            event.bp.hitl.pause(event.platform, event.user.id);
 	            return _context.abrupt('return', console.log('human operator => pause'));
 	
-	          case 9:
+	          case 16:
 	            if (!_lodash2.default.includes(['delivery', 'read', 'echo', 'bp_dialog_timeout'], event.type)) {
-	              _context.next = 11;
+	              _context.next = 18;
 	              break;
 	            }
 	
 	            return _context.abrupt('return', next());
 	
-	          case 11:
-	            _context.next = 13;
+	          case 18:
+	            _context.next = 20;
 	            return db.getUserSession(event);
 	
-	          case 13:
+	          case 20:
 	            session = _context.sent;
 	
 	            if (session) {
-	              _context.next = 16;
+	              _context.next = 23;
 	              break;
 	            }
 	
 	            return _context.abrupt('return', next());
 	
-	          case 16:
+	          case 23:
 	
 	            if (session.is_new_session) {
 	              event.bp.events.emit('hitl.session', session);
 	            }
 	
-	            _context.next = 19;
+	            _context.next = 26;
 	            return db.appendMessageToSession(event, session.id, 'in');
 	
-	          case 19:
+	          case 26:
 	            message = _context.sent;
 	
 	            event.bp.events.emit('hitl.message', message);
@@ -164,7 +179,7 @@ module.exports =
 	            event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text);
 	
 	            if (!event.chatbotDisable) {
-	              _context.next = 30;
+	              _context.next = 37;
 	              break;
 	            }
 	
@@ -172,9 +187,9 @@ module.exports =
 	            event.bp.hitl.pause(event.platform, event.user.id);
 	            return _context.abrupt('return', next());
 	
-	          case 30:
+	          case 37:
 	            if (!event.chatbotEnable) {
-	              _context.next = 34;
+	              _context.next = 41;
 	              break;
 	            }
 	
@@ -182,9 +197,9 @@ module.exports =
 	            event.bp.hitl.unpause(event.platform, event.user.id);
 	            return _context.abrupt('return', next());
 	
-	          case 34:
+	          case 41:
 	            if (!(isPaused && _lodash2.default.includes(['text', 'message', 'quick_reply'], event.type))) {
-	              _context.next = 37;
+	              _context.next = 44;
 	              break;
 	            }
 	
@@ -192,11 +207,11 @@ module.exports =
 	            // the session or bot is paused, swallow the message
 	            return _context.abrupt('return');
 	
-	          case 37:
+	          case 44:
 	
 	            next();
 	
-	          case 38:
+	          case 45:
 	          case 'end':
 	            return _context.stop();
 	        }
