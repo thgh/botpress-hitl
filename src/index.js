@@ -14,6 +14,7 @@ const incomingMiddleware = async (event, next) => {
   if (!db) { return next() }
 
   if (event.type === 'human') {
+    console.log('human event', event)
     if (event.text.toLowerCase().includes('survey')) {
       console.log('human operator "survey" => unpause')
       event.startSurvey = true

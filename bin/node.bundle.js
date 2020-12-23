@@ -100,27 +100,29 @@ module.exports =
 	
 	          case 2:
 	            if (!(event.type === 'human')) {
-	              _context.next = 16;
+	              _context.next = 17;
 	              break;
 	            }
 	
+	            console.log('human event', event);
+	
 	            if (!event.text.toLowerCase().includes('survey')) {
-	              _context.next = 10;
+	              _context.next = 11;
 	              break;
 	            }
 	
 	            console.log('human operator "survey" => unpause');
 	            event.startSurvey = true;
-	            _context.next = 8;
+	            _context.next = 9;
 	            return event.bp.hitl.unpause(event.platform, event.user.id);
 	
-	          case 8:
+	          case 9:
 	            event.bp.logger.debug('human operator "survey" => unpause');
 	            return _context.abrupt('return', next());
 	
-	          case 10:
+	          case 11:
 	            if (!event.text.toLowerCase().includes('goodbye')) {
-	              _context.next = 14;
+	              _context.next = 15;
 	              break;
 	            }
 	
@@ -128,42 +130,42 @@ module.exports =
 	            event.bp.logger.debug('human operator "goodbye" => unpause');
 	            return _context.abrupt('return', console.log('human operator "goodbye" => unpause'));
 	
-	          case 14:
+	          case 15:
 	            event.bp.hitl.pause(event.platform, event.user.id);
 	            return _context.abrupt('return', console.log('human operator => pause'));
 	
-	          case 16:
+	          case 17:
 	            if (!_lodash2.default.includes(['delivery', 'read', 'echo', 'bp_dialog_timeout'], event.type)) {
-	              _context.next = 18;
+	              _context.next = 19;
 	              break;
 	            }
 	
 	            return _context.abrupt('return', next());
 	
-	          case 18:
-	            _context.next = 20;
+	          case 19:
+	            _context.next = 21;
 	            return db.getUserSession(event);
 	
-	          case 20:
+	          case 21:
 	            session = _context.sent;
 	
 	            if (session) {
-	              _context.next = 23;
+	              _context.next = 24;
 	              break;
 	            }
 	
 	            return _context.abrupt('return', next());
 	
-	          case 23:
+	          case 24:
 	
 	            if (session.is_new_session) {
 	              event.bp.events.emit('hitl.session', session);
 	            }
 	
-	            _context.next = 26;
+	            _context.next = 27;
 	            return db.appendMessageToSession(event, session.id, 'in');
 	
-	          case 26:
+	          case 27:
 	            message = _context.sent;
 	
 	            event.bp.events.emit('hitl.message', message);
@@ -179,7 +181,7 @@ module.exports =
 	            event.chatbotEnable = isPaused && intents.includes('bothrs:chatbot.enable') || /HITL_STOP/.test(event.text);
 	
 	            if (!event.chatbotDisable) {
-	              _context.next = 37;
+	              _context.next = 38;
 	              break;
 	            }
 	
@@ -187,9 +189,9 @@ module.exports =
 	            event.bp.hitl.pause(event.platform, event.user.id);
 	            return _context.abrupt('return', next());
 	
-	          case 37:
+	          case 38:
 	            if (!event.chatbotEnable) {
-	              _context.next = 41;
+	              _context.next = 42;
 	              break;
 	            }
 	
@@ -197,9 +199,9 @@ module.exports =
 	            event.bp.hitl.unpause(event.platform, event.user.id);
 	            return _context.abrupt('return', next());
 	
-	          case 41:
+	          case 42:
 	            if (!(isPaused && _lodash2.default.includes(['text', 'message', 'quick_reply'], event.type))) {
-	              _context.next = 44;
+	              _context.next = 45;
 	              break;
 	            }
 	
@@ -207,11 +209,11 @@ module.exports =
 	            // the session or bot is paused, swallow the message
 	            return _context.abrupt('return');
 	
-	          case 44:
+	          case 45:
 	
 	            next();
 	
-	          case 45:
+	          case 46:
 	          case 'end':
 	            return _context.stop();
 	        }
